@@ -30,6 +30,11 @@
   }
 </script>
 
+<svelte:head>
+  <title>MDL-ONLINE - 联系我们</title>
+  <meta name="description" content="与MDL-ONLINE团队联系，获取支持或合作。" />
+</svelte:head>
+
 <div class="container">
   <div class="contact-header">
     <h1>联系我们</h1>
@@ -220,7 +225,7 @@
   input:focus, textarea:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(255, 62, 0, 0.2);
+    box-shadow: 0 0 0 2px rgba(0, 172, 252, 0.2);
   }
   
   .error-message {

@@ -2,6 +2,11 @@
   import Button from '$lib/components/Button.svelte';
 </script>
 
+<svelte:head>
+  <title>MDL-ONLINE - 功能特性</title>
+  <meta name="description" content="探索MDL-ONLINE的强大功能和特性。" />
+</svelte:head>
+
 <div class="container">
   <header class="page-header">
     <h1>功能特性</h1>

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { theme } from '$lib/stores/theme';
+  import { theme, toggleTheme } from '$lib/stores/theme';
+  import ThemeIcon from '$lib/components/ThemeIcon.svelte';
   import { onMount } from 'svelte';
   import '../app.css';
   
@@ -24,6 +25,11 @@
           <li><a href="/features">功能</a></li>
           <li><a href="/about">关于</a></li>
           <li><a href="/contact">联系我们</a></li>
+          <li>
+            <button class="theme-toggle" on:click={toggleTheme} aria-label="切换主题">
+              <ThemeIcon theme={$theme} />
+            </button>
+          </li>
         </ul>
       </nav>
     </div>
@@ -59,7 +65,7 @@
       </div>
       
       <div class="copyright">
-        &copy; {new Date().getFullYear()} MDL-ONLINE. 保留所有权利。
+        Copyright &copy; 2011-2023 OpenGMS. All Rights Reserved.
       </div>
     </div>
   </footer>
@@ -81,7 +87,7 @@
   }
   
   .container {
-    max-width: 1200px;
+    max-width: 1500px;
     margin: 0 auto;
     padding: 0 1rem;
   }
@@ -93,11 +99,23 @@
     height: 70px;
   }
   
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
   .logo a {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #ff3e00;
+    color: var(--primary-color);
     text-decoration: none;
+  }
+  
+  nav {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
   }
   
   nav ul {
@@ -106,6 +124,7 @@
     margin: 0;
     padding: 0;
     gap: 2rem;
+    align-items: center;
   }
   
   nav a {
@@ -116,7 +135,30 @@
   }
   
   nav a:hover {
-    color: #ff3e00;
+    color: var(--primary-color);
+  }
+
+  nav li:last-child {
+    height: 30px;
+    display: flex;
+    align-items: center;
+  }
+
+  .theme-toggle {
+    background: none;
+    border: none;
+    padding: 0.2rem;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+
+  .theme-toggle:hover {
+    background-color: var(--hover-bg);
   }
   
   .content {
@@ -138,7 +180,7 @@
   
   .footer-section h3 {
     margin-top: 0;
-    color: #ff3e00;
+    color: var(--primary-color);
     margin-bottom: 1rem;
   }
   
@@ -159,7 +201,7 @@
   }
   
   .footer-section a:hover {
-    color: #ff3e00;
+    color: var(--primary-color);
   }
   
   .copyright {
@@ -184,6 +226,12 @@
       gap: 1rem;
       flex-wrap: wrap;
       justify-content: center;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
     }
   }
 </style> 

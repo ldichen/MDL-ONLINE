@@ -2,7 +2,7 @@
   /* 亮色主题变量 */
   --background-color: #ffffff;
   --text-color: #333333;
-  --primary-color: #ff3e00;
+  --primary-color: #00acfc;
   --secondary-color: #676778;
   --header-bg: #ffffff;
   --footer-bg: #f5f5f5;
@@ -12,13 +12,14 @@
   --warning-color: #ffc107;
   --error-color: #dc3545;
   --info-color: #17a2b8;
+  --hover-bg: rgba(0, 0, 0, 0.05);
 }
 
 /* 暗色主题变量 */
 [data-theme="dark"] {
   --background-color: #121212;
   --text-color: #e0e0e0;
-  --primary-color: #ff5722;
+  --primary-color: #33bdff;
   --secondary-color: #9e9eaa;
   --header-bg: #1e1e1e;
   --footer-bg: #1e1e1e;
@@ -28,6 +29,7 @@
   --warning-color: #f6c23e;
   --error-color: #f56565;
   --info-color: #4299e1;
+  --hover-bg: rgba(255, 255, 255, 0.05);
 }
 
 /* 基础样式 */
@@ -81,7 +83,7 @@ img {
 /* 实用工具类 */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1500px;
   margin: 0 auto;
   padding: 0 1rem;
 }

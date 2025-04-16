@@ -1,130 +1,331 @@
 <script lang="ts">
   import Button from '$lib/components/Button.svelte';
-  import { toggleTheme, theme } from '$lib/stores/theme';
+  import { onMount } from 'svelte';
+  import { fly } from 'svelte/transition';
   import { formatDate } from '$lib/utils/formatters';
-  
+  import { EXTERNAL_LINKS } from '$lib/constants/config';
+
+  let currentModule = 0; // 0 表示首页，1-5 表示各个模块
+  let isTransitioning = false;
+  let direction = 1; // 1 表示向下，-1 表示向上
+
+  const { OPENGMS } = EXTERNAL_LINKS;
   const currentDate = formatDate(new Date());
+  const modules = [
+    { id: 1, name: "基础信息" },
+    { id: 2, name: '本地属性' },
+    { id: 3, name: '作者' },
+    { id: 4, name: '行为' },
+    { id: 5, name: '运行时' }
+  ];
+
+  function handleWheel(event: WheelEvent) {
+    if (isTransitioning) return;
+    
+    const delta = Math.sign(event.deltaY);
+    if (delta > 0 && currentModule < 5) {
+      direction = 1;
+      nextModule();
+    } else if (delta < 0 && currentModule > 0) {
+      direction = -1;
+      previousModule();
+    }
+  }
+
+  function startExplore() {
+    direction = 1;
+    currentModule = 1;
+  }
+
+  function nextModule() {
+    if (currentModule < 5) {
+      direction = 1;
+      isTransitioning = true;
+      currentModule++;
+      setTimeout(() => {
+        isTransitioning = false;
+      }, 500);
+    }
+  }
+
+  function previousModule() {
+    if (currentModule > 0) {
+      direction = -1;
+      isTransitioning = true;
+      currentModule--;
+      setTimeout(() => {
+        isTransitioning = false;
+      }, 500);
+    }
+  }
+
+  function goToModule(index: number) {
+    if (index === currentModule) return;
+    direction = index > currentModule ? 1 : -1;
+    currentModule = index;
+  }
+
+  function goToMDLDocs() {
+    window.open(EXTERNAL_LINKS.OPENGMS.MDL, '_blank');
+  }
+
+  onMount(() => {
+    document.body.style.overflow = 'hidden'; // 禁用页面滚动
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  });
+
+  $: inAnimation = direction > 0 
+    ? { y: 50, duration: 500 }
+    : { y: -50, duration: 500 };
+  
+  $: outAnimation = direction > 0
+    ? { y: -50, duration: 500 }
+    : { y: 50, duration: 500 };
 </script>
 
+<svelte:head>
+  <title>MDL-ONLINE - 构建你的MDL</title>
+  <meta name="description" content="欢迎访问MDL-ONLINE，一个专业的Svelte应用开发框架。" />
+</svelte:head>
+
+<svelte:window on:wheel={handleWheel}/>
+
 <main>
-  <div class="hero">
-    <h1>欢迎使用 MDL-ONLINE</h1>
-    <p class="subtitle">一个专业的 Svelte 应用</p>
-    
-    <div class="action-buttons">
-      <Button variant="primary" size="lg">开始探索</Button>
-      <Button variant="outline" size="lg">了解更多</Button>
-    </div>
-    
-    <p class="info">今天是 {currentDate}</p>
+  <div class="content">
+    {#key currentModule}
+      <div class="module" 
+           in:fly={inAnimation}
+           out:fly={outAnimation}>
+        {#if currentModule === 0}
+          <h1>欢迎使用 MDL-ONLINE</h1>
+          <p class="subtitle">一个专业在线构建MDL的工具</p>
+          
+          <div class="action-buttons">
+            <Button variant="primary" size="lg" on:click={startExplore}>开始探索</Button>
+            <a href={OPENGMS.MDL} target="_blank">
+              <Button variant="outline" size="lg">了解更多</Button>
+            </a>
+          </div>
+
+          <p class="info">今天是 {currentDate}</p>
+        {:else}
+          <h2>{modules[currentModule - 1].name}</h2>
+          
+          <div class="form-content">
+            {#if currentModule === 1}
+              <h3>基础信息配置</h3>
+              <!-- 添加基础信息表单内容 -->
+            {:else if currentModule === 2}
+              <h3>本地属性配置</h3>
+              <!-- 添加本地属性表单内容 -->
+            {:else if currentModule === 3}
+              <h3>作者信息配置</h3>
+              <!-- 添加作者信息表单内容 -->
+            {:else if currentModule === 4}
+              <h3>行为配置</h3>
+              <!-- 添加行为配置表单内容 -->
+            {:else if currentModule === 5}
+              <h3>运行时配置</h3>
+              <!-- 添加运行时配置表单内容 -->
+            {/if}
+          </div>
+
+          <div class="action-buttons">
+            {#if currentModule > 1}
+              <Button variant="outline" size="lg" on:click={previousModule}>返回上一步</Button>
+            {/if}
+            {#if currentModule < 5}
+              <Button variant="primary" size="lg" on:click={nextModule}>确认，下一步</Button>
+            {:else}
+              <Button variant="primary" size="lg" on:click={() => {}}>完成</Button>
+            {/if}
+          </div>
+        {/if}
+      </div>
+    {/key}
   </div>
-  
-  <section class="features">
-    <h2>特色功能</h2>
-    
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>响应式设计</h3>
-        <p>完美适配各种设备尺寸的布局</p>
-      </div>
-      
-      <div class="feature-card">
-        <h3>深色模式</h3>
-        <p>支持深色模式和浅色模式切换</p>
-        <div class="theme-toggle">
-          <Button size="sm" on:click={toggleTheme}>
-            {$theme === 'dark' ? '切换到浅色' : '切换到深色'}
-          </Button>
-        </div>
-      </div>
-      
-      <div class="feature-card">
-        <h3>高性能</h3>
-        <p>利用 Svelte 的优势，实现极速的用户体验</p>
-      </div>
+
+  {#if currentModule > 0}
+    <div class="nav-bar">
+      {#each modules as module, index}
+        <button 
+          class="nav-item {currentModule === index + 1 ? 'active' : ''}"
+          on:click={() => goToModule(index + 1)}
+          aria-label="跳转到{module.name}模块"
+          aria-current={currentModule === index + 1}
+        >
+          <div class="nav-dot"></div>
+          <span class="nav-label">{module.name}</span>
+        </button>
+      {/each}
     </div>
-  </section>
+  {/if}
 </main>
 
 <style>
   main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+  }
+
+  .content {
+    flex: 1;
+    height: 100vh;
+  }
+
+  .nav-bar {
+    position: fixed;
+    right: 200px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    z-index: 10;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.3s;
+    background: none;
+    border: none;
+    padding: 0.75rem 0.5rem;
+    width: 100%;
+    text-align: left;
+    min-height: 48px;
+  }
+
+  .nav-item:hover, .nav-item:focus {
+    opacity: 1;
+    outline: none;
+  }
+
+  .nav-item:focus-visible {
+    outline: 2px solid var(--primary-color);
+    border-radius: 4px;
+  }
+
+  .nav-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    transition: transform 0.3s;
+    flex-shrink: 0;
+    margin: auto 0;
+  }
+
+  .nav-item.active .nav-dot {
+    transform: scale(1.6);
+  }
+
+  .nav-label {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    transition: color 0.3s;
+    white-space: nowrap;
+    margin: auto 0;
+    line-height: 1;
+  }
+
+  .nav-item.active .nav-label {
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: var(--primary-color);
   }
   
-  .hero {
+  .module {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+
+    background-color: var(--background-color);
     text-align: center;
-    padding: 4rem 0;
   }
   
   h1 {
     font-size: 3rem;
     margin-bottom: 0.5rem;
-    color: #ff3e00;
+    color: var(--primary-color);
+  }
+
+  h2 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
   }
   
   .subtitle {
     font-size: 1.5rem;
     margin-bottom: 2rem;
-    color: #676778;
+    color: var(--text-color);
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--text-color);
   }
   
   .action-buttons {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-bottom: 2rem;
+    margin-top: 2rem;
   }
-  
+
+  .form-content {
+    margin: 2rem 0;
+    min-height: 300px;
+  }
+
   .info {
     font-style: italic;
-    color: #888;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 2rem;
   }
-  
-  .features {
-    margin-top: 4rem;
-  }
-  
-  h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    font-size: 2rem;
-  }
-  
-  .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-  }
-  
-  .feature-card {
-    padding: 2rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background-color: var(--card-bg, white);
-    transition: transform 0.2s;
-  }
-  
-  .feature-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  h3 {
-    margin-top: 0;
-    color: #ff3e00;
-  }
-  
-  .theme-toggle {
-    margin-top: 1rem;
-  }
-  
+
   @media (max-width: 768px) {
-    h1 {
+    .nav-bar {
+      width: 60px;
+      padding: 1.5rem 1rem;
+    }
+
+    .nav-item:not(:last-child)::after {
+      left: 7px;
+      height: calc(2.5rem + 1rem);
+    }
+
+    .nav-label {
+      display: none;
+    }
+
+    .module {
+      padding-right: calc(60px + 1rem);
+    }
+
+    h1, h2 {
       font-size: 2rem;
     }
     
-    .subtitle {
+    .subtitle, h3 {
       font-size: 1.2rem;
     }
     

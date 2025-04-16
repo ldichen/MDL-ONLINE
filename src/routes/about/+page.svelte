@@ -28,6 +28,11 @@
   ];
 </script>
 
+<svelte:head>
+  <title>MDL-ONLINE - 关于我们</title>
+  <meta name="description" content="了解MDL-ONLINE团队和我们的故事。" />
+</svelte:head>
+
 <div class="container">
   <section class="about-section">
     <h1>关于我们</h1>
