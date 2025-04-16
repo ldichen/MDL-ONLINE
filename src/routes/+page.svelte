@@ -4,6 +4,11 @@
   import { fly } from 'svelte/transition';
   import { formatDate } from '$lib/utils/formatters';
   import { EXTERNAL_LINKS } from '$lib/constants/config';
+  import BasicInfo from '$lib/modules/BasicInfo.svelte';
+  import LocalAttribute from '$lib/modules/LocalAttribute.svelte';
+  import Authors from '$lib/modules/Authors.svelte';
+  import Behavior from '$lib/modules/Behavior.svelte';
+  import Runtime from '$lib/modules/Runtime.svelte';
 
   let currentModule = 0; // 0 表示首页，1-5 表示各个模块
   let isTransitioning = false;
@@ -12,11 +17,11 @@
   const { OPENGMS } = EXTERNAL_LINKS;
   const currentDate = formatDate(new Date());
   const modules = [
-    { id: 1, name: "基础信息" },
-    { id: 2, name: '本地属性' },
-    { id: 3, name: '作者' },
-    { id: 4, name: '行为' },
-    { id: 5, name: '运行时' }
+    { id: 1, name: "基础信息", component: BasicInfo },
+    { id: 2, name: '本地属性', component: LocalAttribute },
+    { id: 3, name: '作者', component: Authors },
+    { id: 4, name: '行为', component: Behavior },
+    { id: 5, name: '运行时', component: Runtime }
   ];
 
   function handleWheel(event: WheelEvent) {
@@ -65,6 +70,14 @@
     currentModule = index;
   }
 
+  function handleModuleNavigation(type: string) {
+    if (type === 'next') {
+      nextModule();
+    } else if (type === 'prev') {
+      previousModule();
+    }
+  }
+
   function goToMDLDocs() {
     window.open(EXTERNAL_LINKS.OPENGMS.MDL, '_blank');
   }
@@ -111,37 +124,11 @@
 
           <p class="info">今天是 {currentDate}</p>
         {:else}
-          <h2>{modules[currentModule - 1].name}</h2>
-          
-          <div class="form-content">
-            {#if currentModule === 1}
-              <h3>基础信息配置</h3>
-              <!-- 添加基础信息表单内容 -->
-            {:else if currentModule === 2}
-              <h3>本地属性配置</h3>
-              <!-- 添加本地属性表单内容 -->
-            {:else if currentModule === 3}
-              <h3>作者信息配置</h3>
-              <!-- 添加作者信息表单内容 -->
-            {:else if currentModule === 4}
-              <h3>行为配置</h3>
-              <!-- 添加行为配置表单内容 -->
-            {:else if currentModule === 5}
-              <h3>运行时配置</h3>
-              <!-- 添加运行时配置表单内容 -->
-            {/if}
-          </div>
-
-          <div class="action-buttons">
-            {#if currentModule > 1}
-              <Button variant="outline" size="lg" on:click={previousModule}>返回上一步</Button>
-            {/if}
-            {#if currentModule < 5}
-              <Button variant="primary" size="lg" on:click={nextModule}>确认，下一步</Button>
-            {:else}
-              <Button variant="primary" size="lg" on:click={() => {}}>完成</Button>
-            {/if}
-          </div>
+          <svelte:component 
+            this={modules[currentModule - 1].component}
+            next={handleModuleNavigation}
+            prev={handleModuleNavigation}
+          />
         {/if}
       </div>
     {/key}
@@ -170,6 +157,9 @@
     overflow: hidden;
     display: flex;
     position: relative;
+    max-width: 1800px;
+    margin: 0 auto;
+    padding: 0 2rem;
   }
 
   .content {
@@ -178,8 +168,8 @@
   }
 
   .nav-bar {
-    position: fixed;
-    right: 200px;
+    position: absolute;
+    right: 1vw;
     top: 50%;
     transform: translateY(-50%);
     width: 200px;
@@ -219,8 +209,8 @@
   }
 
   .nav-dot {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background-color: var(--primary-color);
     transition: transform 0.3s;
@@ -233,7 +223,7 @@
   }
 
   .nav-label {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--text-color);
     transition: color 0.3s;
     white-space: nowrap;
@@ -243,29 +233,25 @@
 
   .nav-item.active .nav-label {
     font-weight: 600;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: var(--primary-color);
   }
   
   .module {
     height: 100vh;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 2rem;
-
     background-color: var(--background-color);
     text-align: center;
   }
   
   h1 {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
-  }
-
-  h2 {
     font-size: 3rem;
     margin-bottom: 0.5rem;
     color: var(--primary-color);
@@ -276,23 +262,12 @@
     margin-bottom: 2rem;
     color: var(--text-color);
   }
-
-  h3 {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
-    color: var(--text-color);
-  }
   
   .action-buttons {
     display: flex;
     gap: 1rem;
     justify-content: center;
     margin-top: 2rem;
-  }
-
-  .form-content {
-    margin: 2rem 0;
-    min-height: 300px;
   }
 
   .info {
@@ -321,11 +296,11 @@
       padding-right: calc(60px + 1rem);
     }
 
-    h1, h2 {
+    h1 {
       font-size: 2rem;
     }
     
-    .subtitle, h3 {
+    .subtitle {
       font-size: 1.2rem;
     }
     

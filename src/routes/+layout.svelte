@@ -25,12 +25,10 @@
           <li><a href="/features">功能</a></li>
           <li><a href="/about">关于</a></li>
           <li><a href="/contact">联系我们</a></li>
-          <li>
-            <button class="theme-toggle" on:click={toggleTheme} aria-label="切换主题">
-              <ThemeIcon theme={$theme} />
-            </button>
-          </li>
         </ul>
+        <button class="theme-toggle" on:click={toggleTheme} aria-label="切换主题">
+          <ThemeIcon theme={$theme} />
+        </button>
       </nav>
     </div>
   </header>
@@ -87,7 +85,7 @@
   }
   
   .container {
-    max-width: 1500px;
+    max-width: 1800px;
     margin: 0 auto;
     padding: 0 1rem;
   }
@@ -113,9 +111,10 @@
   }
   
   nav {
+    margin-left: 30px;
     flex: 1;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
   }
   
   nav ul {
