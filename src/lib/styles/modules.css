@@ -1,13 +1,29 @@
 .module-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .form-content {
   margin: 2rem 0;
-  border: 1px solid var(--primary-color);
-  min-height: 300px;
+  min-height: 700px;
+  max-height: 800px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) transparent;
+}
+
+.form-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.form-content::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 3px;
 }
 
 .action-buttons {
@@ -39,4 +55,7 @@
 
 .btn:hover {
   opacity: 0.9;
+}
+h3 {
+  font-size: 2rem;
 }

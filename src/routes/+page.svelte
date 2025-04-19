@@ -238,7 +238,7 @@
   }
   
   .module {
-    height: 100vh;
+    height: 95vh;
     width: 100%;
     max-width: 1800px;
     margin: 0 auto;
