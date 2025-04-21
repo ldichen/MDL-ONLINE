@@ -559,7 +559,7 @@
   }
 
   .btn-add {
-    margin: 1rem;
+    margin: 0.5rem;
     padding: 0.5rem 1rem;
     background: var(--primary-color);
     color: white;

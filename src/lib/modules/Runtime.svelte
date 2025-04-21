@@ -5,25 +5,25 @@
 
   // 硬件配置选项
   const hardwareOptions = [
-    'CPU',
+    'CPU core',
     'Memory',
-    'GPU',
-    'Storage',
-    'Network'
+    'CPU frequency',
+    'disk avail size',
+    'CPU model'
   ];
 
   // 软件环境选项
   const environmentOptions = [
-    'Windows',
-    'Linux',
-    'MacOS',
-    'Ubuntu',
-    'CentOS',
-    'Debian',
-    'RedHat',
-    'Android',
-    'iOS',
-    'Docker'
+    'Operation System',
+    'Java SE Development Kit',
+    'Python',
+    'MATLAB',
+    'MicroSoft Visual C++ Redistributable',
+    'MongoDB',
+    'Microsoft SQL Server Database Engine',
+    'Node.js',
+    'Microsoft Visual C++ Runtime',
+    'Apache Tomact',
   ];
 
   // 文件信息接口
@@ -35,12 +35,7 @@
   }
 
   // 使用 store 中的数据
-  let runtimeInfo = $derived($moduleData.runtime.info || {
-    name: '',
-    version: '',
-    baseDir: '',
-    entryFile: null as FileInfo | null
-  });
+  let runtimeInfo = $derived($moduleData.runtime.info);
 
   let hardwareConfigures = $derived($moduleData.runtime.hardware || [
     { configures: hardwareOptions[0], min: '', max: '' }
@@ -71,7 +66,7 @@
       }
 
       // 创建文件信息对象
-      const fileInfo: FileInfo = {
+      const fileInfo = {
         name: file.name,
         size: file.size,
         type: file.type,
@@ -232,31 +227,32 @@
         <div class="input-group">
           <label for="entry">Entry</label>
           <div class="file-input-container">
-            <input 
-              type="file" 
-              id="entry" 
-              onchange={handleFileChange}
-              accept="*/*"
-            />
-            {#if runtimeInfo.entryFile}
-              <div class="file-info">
-                <span>Selected file: {runtimeInfo.entryFile.name}</span>
-                <button class="btn-remove" onclick={() => {
-                  moduleData.update(store => ({
-                    ...store,
-                    runtime: {
-                      ...store.runtime,
-                      info: {
-                        ...store.runtime.info,
-                        entryFile: null
+            <div class="file-input-wrapper">
+              {#if runtimeInfo.entryFile}
+                <div class="file-display">
+                  <span>{runtimeInfo.entryFile.name}</span>
+                  <button class="btn-remove" onclick={() => {
+                    moduleData.update(store => ({
+                      ...store,
+                      runtime: {
+                        ...store.runtime,
+                        info: {
+                          ...store.runtime.info,
+                          entryFile: null
+                        }
                       }
-                    }
-                  }));
-                  const input = document.getElementById('entry') as HTMLInputElement;
-                  if (input) input.value = '';
-                }}>×</button>
-              </div>
-            {/if}
+                    }));
+                  }}>×</button>
+                </div>
+              {:else}
+                <input 
+                  type="file" 
+                  id="entry" 
+                  onchange={handleFileChange}
+                  accept="*/*"
+                />
+              {/if}
+            </div>
             <small>Max file size: 500MB</small>
           </div>
         </div>
@@ -416,7 +412,7 @@
     margin: 2rem 0;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 
   .form-group {
@@ -434,9 +430,7 @@
     transform: translateY(-2px);
   }
 
-  .basic-info-group {
-    margin-bottom: 1rem;
-  }
+
 
   .basic-info {
     display: grid;
@@ -476,10 +470,10 @@
 
   .input-group input[type="file"] {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.3rem;
     border: 2px dashed var(--border-color);
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     background-color: var(--input-bg);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -489,8 +483,8 @@
     display: block;
     color: var(--text-color);
     opacity: 0.7;
-    font-size: 0.85rem;
-    margin-top: 0.5rem;
+    font-size: 0.8rem;
+
   }
 
   h4 {
@@ -567,7 +561,7 @@
   }
 
   .btn-add-container {
-    padding: 1rem;
+    padding: 0.5rem;
     text-align: center;
     background: var(--card-bg);
     border-top: 1px solid var(--border-color);
@@ -638,28 +632,49 @@
   .file-input-container {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.2rem;
   }
 
-  .file-info {
+  .file-input-wrapper {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    background: var(--background-color);
-    border-radius: 4px;
-    font-size: 0.9rem;
   }
 
-  .file-info span {
-    flex: 1;
+  .file-display {
+    width: 100%;
+    padding: 0.3rem;
+    border: 2px dashed var(--border-color);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    background-color: var(--input-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .file-display span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .file-info .btn-remove {
-    padding: 0.2rem 0.4rem;
+  .file-display .btn-remove {
+    padding: 0.15rem 0.3rem;
     font-size: 0.8rem;
+    background: #ff4444;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .input-group input[type="file"] {
+    width: 100%;
+    padding: 0.3rem;
+    border: 2px dashed var(--border-color);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    background-color: var(--input-bg);
+    cursor: pointer;
   }
 </style> 

@@ -35,16 +35,47 @@
     }
   
     function toggleExpand(node: TreeNode) {
-      node.expanded = !node.expanded;
-      updateTreeData();
+      const updatedTree = JSON.parse(JSON.stringify(treeData));
+      const targetNode = findNode(updatedTree, node.id);
+      if (targetNode) {
+        targetNode.expanded = !targetNode.expanded;
+        moduleData.update(store => ({
+          ...store,
+          basicInfo: {
+            ...store.basicInfo,
+            classification: updatedTree
+          }
+        }));
+      }
     }
   
     function toggleSelect(node: TreeNode, event: Event) {
       event.stopPropagation();
-      node.selected = !node.selected;
-      updateChildrenSelection(node, node.selected);
-      updateParentSelection(treeData, node);
-      updateTreeData();
+      const updatedTree = JSON.parse(JSON.stringify(treeData));
+      const targetNode = findNode(updatedTree, node.id);
+      if (targetNode) {
+        targetNode.selected = !targetNode.selected;
+        updateChildrenSelection(targetNode, targetNode.selected);
+        updateParentSelection(updatedTree, targetNode);
+        moduleData.update(store => ({
+          ...store,
+          basicInfo: {
+            ...store.basicInfo,
+            classification: updatedTree
+          }
+        }));
+      }
+    }
+  
+    function findNode(nodes: TreeNode[], id: string): TreeNode | null {
+      for (const node of nodes) {
+        if (node.id === id) return node;
+        if (node.children) {
+          const found = findNode(node.children, id);
+          if (found) return found;
+        }
+      }
+      return null;
     }
   
     function updateChildrenSelection(node: TreeNode, selected: boolean) {

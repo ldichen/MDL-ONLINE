@@ -251,7 +251,7 @@
     position: sticky;
     left: 0;
     right: 0;
-    padding: 1rem;
+    padding: 0.5rem;
     text-align: center;
     background: var(--card-bg);
     border-top: 1px solid var(--border-color);

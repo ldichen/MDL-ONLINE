@@ -979,7 +979,7 @@
   .parameters-section {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 
   .parameter-group {
@@ -1071,7 +1071,7 @@
   }
 
   .btn-add-container {
-    padding: 1rem;
+    padding: 0.5rem;
     text-align: right;
     background: var(--card-bg);
     border-top: 1px solid var(--border-color);
