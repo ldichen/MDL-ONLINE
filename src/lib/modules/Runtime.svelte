@@ -1,5 +1,6 @@
 <script lang="ts">
   import '../styles/modules.css';
+  import { moduleData } from '../stores/moduleData';
   let { next, prev } = $props();
 
   // 硬件配置选项
@@ -25,33 +26,40 @@
     'Docker'
   ];
 
-  // 基本信息
-  let runtimeInfo = $state({
+  // 文件信息接口
+  interface FileInfo {
+    name: string;
+    size: number;
+    type: string;
+    lastModified: number;
+  }
+
+  // 使用 store 中的数据
+  let runtimeInfo = $derived($moduleData.runtime.info || {
     name: '',
     version: '',
     baseDir: '',
-    entryFile: null as File | null
+    entryFile: null as FileInfo | null
   });
 
-  // 表格数据
-  let hardwareConfigures = $state([
+  let hardwareConfigures = $derived($moduleData.runtime.hardware || [
     { configures: hardwareOptions[0], min: '', max: '' }
   ]);
 
-  let softwareConfigures = $state([
+  let softwareConfigures = $derived($moduleData.runtime.software || [
     { environment: environmentOptions[0], platform: '', value: '' }
   ]);
 
-  let assemblies = $state([
+  let assemblies = $derived($moduleData.runtime.assemblies || [
     { name: '', path: '' }
   ]);
 
-  let supportiveResources = $state([
+  let supportiveResources = $derived($moduleData.runtime.resources || [
     { type: '', name: '' }
   ]);
 
   // 文件上传处理
-  function handleFileChange(event: Event) {
+  async function handleFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     
@@ -61,45 +69,142 @@
         input.value = '';
         return;
       }
-      runtimeInfo.entryFile = file;
+
+      // 创建文件信息对象
+      const fileInfo: FileInfo = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified
+      };
+
+      moduleData.update(store => ({
+        ...store,
+        runtime: {
+          ...store.runtime,
+          info: {
+            ...store.runtime.info,
+            entryFile: fileInfo
+          }
+        }
+      }));
     }
   }
 
   // 添加行函数
   function addRow(table: string) {
     switch (table) {
-      case 'hardware':
-        hardwareConfigures = [...hardwareConfigures, { configures: hardwareOptions[0], min: '', max: '' }];
+      case 'hardware': {
+        const newHardware = [...hardwareConfigures, { configures: hardwareOptions[0], min: '', max: '' }];
+        moduleData.update(store => ({
+          ...store,
+          runtime: {
+            ...store.runtime,
+            hardware: newHardware
+          }
+        }));
         break;
-      case 'software':
-        softwareConfigures = [...softwareConfigures, { environment: environmentOptions[0], platform: '', value: '' }];
+      }
+      case 'software': {
+        const newSoftware = [...softwareConfigures, { environment: environmentOptions[0], platform: '', value: '' }];
+        moduleData.update(store => ({
+          ...store,
+          runtime: {
+            ...store.runtime,
+            software: newSoftware
+          }
+        }));
         break;
-      case 'assemblies':
-        assemblies = [...assemblies, { name: '', path: '' }];
+      }
+      case 'assemblies': {
+        const newAssemblies = [...assemblies, { name: '', path: '' }];
+        moduleData.update(store => ({
+          ...store,
+          runtime: {
+            ...store.runtime,
+            assemblies: newAssemblies
+          }
+        }));
         break;
-      case 'resources':
-        supportiveResources = [...supportiveResources, { type: '', name: '' }];
+      }
+      case 'resources': {
+        const newResources = [...supportiveResources, { type: '', name: '' }];
+        moduleData.update(store => ({
+          ...store,
+          runtime: {
+            ...store.runtime,
+            resources: newResources
+          }
+        }));
         break;
+      }
     }
   }
 
   // 删除行函数
   function removeRow(table: string, index: number) {
     switch (table) {
-      case 'hardware':
-        hardwareConfigures = hardwareConfigures.filter((_, i) => i !== index);
+      case 'hardware': {
+        const newHardware = hardwareConfigures.filter((_, i) => i !== index);
+        moduleData.update(store => ({
+          ...store,
+          runtime: {
+            ...store.runtime,
+            hardware: newHardware
+          }
+        }));
         break;
-      case 'software':
-        softwareConfigures = softwareConfigures.filter((_, i) => i !== index);
+      }
+      case 'software': {
+        const newSoftware = softwareConfigures.filter((_, i) => i !== index);
+        moduleData.update(store => ({
+          ...store,
+          runtime: {
+            ...store.runtime,
+            software: newSoftware
+          }
+        }));
         break;
-      case 'assemblies':
-        assemblies = assemblies.filter((_, i) => i !== index);
+      }
+      case 'assemblies': {
+        const newAssemblies = assemblies.filter((_, i) => i !== index);
+        moduleData.update(store => ({
+          ...store,
+          runtime: {
+            ...store.runtime,
+            assemblies: newAssemblies
+          }
+        }));
         break;
-      case 'resources':
-        supportiveResources = supportiveResources.filter((_, i) => i !== index);
+      }
+      case 'resources': {
+        const newResources = supportiveResources.filter((_, i) => i !== index);
+        moduleData.update(store => ({
+          ...store,
+          runtime: {
+            ...store.runtime,
+            resources: newResources
+          }
+        }));
         break;
+      }
     }
   }
+
+  // 更新 store 中的数据
+  $effect(() => {
+    moduleData.update(store => ({
+      ...store,
+      runtime: {
+        ...store.runtime,
+        info: runtimeInfo,
+        hardware: hardwareConfigures,
+        software: softwareConfigures,
+        assemblies: assemblies,
+        resources: supportiveResources
+      }
+    }));
+  });
 </script>
 
 <div class="module-container">
@@ -126,13 +231,34 @@
 
         <div class="input-group">
           <label for="entry">Entry</label>
-          <input 
-            type="file" 
-            id="entry" 
-            onchange={handleFileChange}
-            accept="*/*"
-          />
-          <small>Max file size: 500MB</small>
+          <div class="file-input-container">
+            <input 
+              type="file" 
+              id="entry" 
+              onchange={handleFileChange}
+              accept="*/*"
+            />
+            {#if runtimeInfo.entryFile}
+              <div class="file-info">
+                <span>Selected file: {runtimeInfo.entryFile.name}</span>
+                <button class="btn-remove" onclick={() => {
+                  moduleData.update(store => ({
+                    ...store,
+                    runtime: {
+                      ...store.runtime,
+                      info: {
+                        ...store.runtime.info,
+                        entryFile: null
+                      }
+                    }
+                  }));
+                  const input = document.getElementById('entry') as HTMLInputElement;
+                  if (input) input.value = '';
+                }}>×</button>
+              </div>
+            {/if}
+            <small>Max file size: 500MB</small>
+          </div>
         </div>
       </div>
     </div>
@@ -507,5 +633,33 @@
     td select {
       min-width: 100px;
     }
+  }
+
+  .file-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--background-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
+  .file-info span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .file-info .btn-remove {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
   }
 </style> 

@@ -27,6 +27,13 @@
   function handleWheel(event: WheelEvent) {
     if (isTransitioning) return;
     
+    // 检查事件目标是否在 form-content 内
+    const formContent = document.querySelector('.form-content');
+    if (formContent?.contains(event.target as Node)) {
+      // 如果在 form-content 内，不执行模块切换
+      return;
+    }
+    
     const delta = Math.sign(event.deltaY);
     if (delta > 0 && currentModule < 5) {
       direction = 1;

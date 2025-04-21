@@ -1,9 +1,12 @@
 <script lang="ts">
     import '../styles/modules.css';
+    import { moduleData } from '../stores/moduleData';
     let { next } = $props();
   
-    let name = $state('');
-    let selectedStyle = $state('SimpleCalculation');
+    // 使用 store 中的数据
+    let name = $derived($moduleData.basicInfo.name);
+    let selectedStyle = $derived($moduleData.basicInfo.type);
+    let treeData = $derived($moduleData.basicInfo.classification);
     
     const styles = [
       { value: 'SimpleCalculation', label: 'SimpleCalculation' },
@@ -11,6 +14,18 @@
       { value: 'StateSimulation', label: 'StateSimulation' }
     ];
   
+    // 更新 store 中的数据
+    $effect(() => {
+      moduleData.update(store => ({
+        ...store,
+        basicInfo: {
+          ...store.basicInfo,
+          name,
+          type: selectedStyle
+        }
+      }));
+    });
+    
     interface TreeNode {
       id: string;
       label: string;
@@ -19,113 +34,9 @@
       children?: TreeNode[];
     }
   
-    let treeData = $state([
-      {
-        id: '1',
-        label: 'Earth System Classification',
-        selected: false,
-        expanded: true,
-        children: [
-          {
-            id: '1-1',
-            label: 'Water System Models',
-            selected: false,
-            expanded: false,
-            children: [
-              { id: '1-1-1', label: 'Water System Synthetic Models', selected: false, expanded: false },
-              { id: '1-1-2', label: 'Atmosphere Water System Models', selected: false, expanded: false },
-              { id: '1-1-3', label: 'Ocean Water System Models', selected: false, expanded: false },
-              { id: '1-1-4', label: 'Surface Water System Models', selected: false, expanded: false },
-              { id: '1-1-5', label: 'Undergroud Water System Models', selected: false, expanded: false },
-              { id: '1-1-6', label: 'Ice-Snow Water System Models', selected: false, expanded: false }
-            ]
-          },
-          {
-            id: '1-2',
-            label: 'Solid System Models',
-            selected: false,
-            expanded: false,
-            children: [
-              { id: '1-2-1', label: 'Soil Synthetic Models', selected: false, expanded: false },
-              { id: '1-2-2', label: 'Soil System Physical Models', selected: false, expanded: false },
-              { id: '1-2-3', label: 'Soil System Chemical Models', selected: false, expanded: false },
-              { id: '1-2-4', label: 'Soil System Ecological Models', selected: false, expanded: false },
-              { id: '1-2-5', label: 'Soil System Statistical Models', selected: false, expanded: false }
-            ]
-          },
-          {
-            id: '1-3',
-            label: 'Atmosphere System Models',
-            selected: false,
-            expanded: false,
-            children: [
-              { id: '1-3-1', label: 'Atmosphere Models', selected: false, expanded: false },
-              { id: '1-3-2', label: 'Atmosphere System Physical Models', selected: false, expanded: false },
-              { id: '1-3-3', label: 'Atmosphere System Chemical Models', selected: false, expanded: false },
-              { id: '1-3-4', label: 'Atmosphere System Ecological Models', selected: false, expanded: false },
-              { id: '1-3-5', label: 'Atmosphere System Statistical Models', selected: false, expanded: false }
-            ]
-          },
-          {
-            id: '1-4',
-            label: 'Ecology System Models',
-            selected: false,
-            expanded: false,
-            children: [
-              { id: '1-4-1', label: 'Ecology System Synthetic Models', selected: false, expanded: false },
-              { id: '1-4-2', label: 'Forest Ecology System Models', selected: false, expanded: false },
-              { id: '1-4-3', label: 'Agriculture Ecology System Models', selected: false, expanded: false },
-              { id: '1-4-4', label: 'Grassland Ecology System Models', selected: false, expanded: false },
-              { id: '1-4-5', label: 'Wetland Ecology System Models', selected: false, expanded: false },
-              { id: '1-4-6', label: 'Freshwater Ecology System Models', selected: false, expanded: false },
-              { id: '1-4-7', label: 'Seawater Ecology System Models', selected: false, expanded: false },
-              { id: '1-4-8', label: 'City Ecology System Models', selected: false, expanded: false }
-            ]
-          },
-          {
-            id: '1-5',
-            label: 'Human/Society/Economy System Models',
-            selected: false,
-            expanded: false,
-            children: [
-              { id: '1-5-1', label: 'Human/Society/Economy System Synthetic Models', selected: false, expanded: false },
-              { id: '1-5-2', label: 'Human/Society/Economy Physical Models', selected: false, expanded: false },
-              { id: '1-5-3', label: 'Human/Society/Economy Chemical Models', selected: false, expanded: false },
-              { id: '1-5-4', label: 'Human/Society/Economy Ecological Models', selected: false, expanded: false },
-              { id: '1-5-5', label: 'Human/Society/Economy Statistical Models', selected: false, expanded: false }
-            ]
-          },
-          {
-            id: '1-6',
-            label: 'Global Models',
-            selected: false,
-            expanded: false,
-            children: [
-              { id: '1-6-1', label: 'Atomosphere System Models', selected: false, expanded: false },
-              { id: '1-6-2', label: 'Land Surface Models', selected: false, expanded: false },
-              { id: '1-6-3', label: 'Ocean Models', selected: false, expanded: false },
-              { id: '1-6-4', label: 'Ice-Snow Models', selected: false, expanded: false },
-              { id: '1-6-5', label: 'Soild Earth Models', selected: false, expanded: false }
-            ]
-          },
-          {
-            id: '1-7',
-            label: 'GIS Analysis Models',
-            selected: false,
-            expanded: false,
-            children: [
-              { id: '1-7-1', label: 'Data Management Models', selected: false, expanded: false },
-              { id: '1-7-2', label: 'Geostatistical Analysis Models', selected: false, expanded: false },
-              { id: '1-7-3', label: 'Spatial Analysis Models', selected: false, expanded: false },
-              { id: '1-7-4', label: '3D Analysis Models', selected: false, expanded: false },
-            ]
-          }
-        ]
-      }
-    ]);
-  
     function toggleExpand(node: TreeNode) {
       node.expanded = !node.expanded;
+      updateTreeData();
     }
   
     function toggleSelect(node: TreeNode, event: Event) {
@@ -133,6 +44,7 @@
       node.selected = !node.selected;
       updateChildrenSelection(node, node.selected);
       updateParentSelection(treeData, node);
+      updateTreeData();
     }
   
     function updateChildrenSelection(node: TreeNode, selected: boolean) {
@@ -153,6 +65,16 @@
         }
       }
       return false;
+    }
+  
+    function updateTreeData() {
+      moduleData.update(store => ({
+        ...store,
+        basicInfo: {
+          ...store.basicInfo,
+          classification: treeData
+        }
+      }));
     }
   </script>
   

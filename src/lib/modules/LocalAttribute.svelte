@@ -1,5 +1,6 @@
 <script lang="ts">
   import '../styles/modules.css';
+  import { moduleData } from '../stores/moduleData';
   let { next, prev } = $props();
 
   // 语言选项
@@ -60,43 +61,20 @@
     };
   }
 
-  // 初始化标签页数据
-  let tabs = $state<TabData[]>([
-    {
-      id: 1,
-      language: languageOptions[0],
-      localName: '',
-      wiki: '',
-      keywords: '',
-      abstract: '',
-      mechanism: [],
-      application: {
-        spatiotemporalScale: spatiotemporalScales[0],
-        stepLength: [
-          { dimension: 'X', min: '', max: '', unit: '' },
-          { dimension: 'Y', min: '', max: '', unit: '' },
-          { dimension: 'Z', min: '', max: '', unit: '' },
-          { dimension: 'T', min: '', max: '', unit: '' }
-        ],
-        scope: {
-          regionName: '',
-          xMin: '',
-          xMax: '',
-          yMin: '',
-          yMax: '',
-          spatialRef: ''
-        }
-      }
-    }
-  ]);
-
+  // 使用 store 中的数据
+  let tabs = $derived($moduleData.localAttribute.tabs || []);
   let activeTabId = $state(1);
-  let activeTab = $derived(tabs.find(t => t.id === activeTabId));
+  $effect(() => {
+    if (tabs.length > 0 && !tabs.find(t => t.id === activeTabId)) {
+      activeTabId = tabs[0].id;
+    }
+  });
+  let activeTab = $derived($moduleData.localAttribute.tabs.find(t => t.id === activeTabId));
 
   // 添加新标签页
   function addTab() {
     const newId = tabs.length > 0 ? Math.max(...tabs.map(t => t.id)) + 1 : 1;
-    tabs = [...tabs, {
+    const newTabs = [...tabs, {
       id: newId,
       language: languageOptions[0],
       localName: '',
@@ -122,36 +100,93 @@
         }
       }
     }];
+    moduleData.update(store => ({
+      ...store,
+      localAttribute: {
+        ...store.localAttribute,
+        tabs: newTabs
+      }
+    }));
     activeTabId = newId;
   }
 
   // 删除标签页
   function removeTab(id: number) {
     if (tabs.length <= 1) return; // 保持至少一个标签页
-    tabs = tabs.filter(t => t.id !== id);
+    const newTabs = tabs.filter(t => t.id !== id);
+    moduleData.update(store => ({
+      ...store,
+      localAttribute: {
+        ...store.localAttribute,
+        tabs: newTabs
+      }
+    }));
     if (activeTabId === id) {
-      activeTabId = tabs[0].id;
+      activeTabId = newTabs[0].id;
     }
   }
 
   // 添加机制行
   function addMechanismRow(tabId: number) {
-    const tabIndex = tabs.findIndex(t => t.id === tabId);
-    if (tabIndex === -1) return;
-    
-    tabs[tabIndex].mechanism = [
-      ...tabs[tabIndex].mechanism,
-      { type: mechanismTypes[0], name: '', value: '' }
-    ];
+    moduleData.update(store => {
+      const newTabs = [...store.localAttribute.tabs];
+      const tabIndex = newTabs.findIndex(t => t.id === tabId);
+      if (tabIndex === -1) return store;
+      
+      newTabs[tabIndex] = {
+        ...newTabs[tabIndex],
+        mechanism: [
+          ...newTabs[tabIndex].mechanism,
+          { type: mechanismTypes[0], name: '', value: '' }
+        ]
+      };
+      
+      return {
+        ...store,
+        localAttribute: {
+          ...store.localAttribute,
+          tabs: newTabs
+        }
+      };
+    });
   }
 
   // 删除机制行
   function removeMechanismRow(tabId: number, index: number) {
-    const tabIndex = tabs.findIndex(t => t.id === tabId);
-    if (tabIndex === -1) return;
-    
-    tabs[tabIndex].mechanism = tabs[tabIndex].mechanism.filter((_, i) => i !== index);
+    moduleData.update(store => {
+      const newTabs = [...store.localAttribute.tabs];
+      const tabIndex = newTabs.findIndex(t => t.id === tabId);
+      if (tabIndex === -1) return store;
+      
+      newTabs[tabIndex] = {
+        ...newTabs[tabIndex],
+        mechanism: newTabs[tabIndex].mechanism.filter((_, i) => i !== index)
+      };
+      
+      return {
+        ...store,
+        localAttribute: {
+          ...store.localAttribute,
+          tabs: newTabs
+        }
+      };
+    });
   }
+
+  // 更新 store 中的数据
+  $effect(() => {
+    if (tabs.length === 0) {
+      addTab();
+    } else {
+      moduleData.update(store => ({
+        ...store,
+        localAttribute: {
+          ...store.localAttribute,
+          tabs
+        }
+      }));
+    }
+  });
 </script>
 
 <div class="module-container">

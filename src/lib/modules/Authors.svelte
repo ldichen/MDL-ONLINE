@@ -1,7 +1,17 @@
 <script lang="ts">
   import '../styles/modules.css';
+  import { moduleData } from '../stores/moduleData';
   let { next, prev } = $props();     
 
+  // 使用 store 中的数据
+  let authors = $derived($moduleData.authors.list);
+
+  // 确保初始化时至少有一行数据
+  $effect(() => {
+    if (authors.length === 0) {
+      addAuthor();
+    }
+  });
 
   // 作者数据结构
   interface Author {
@@ -16,24 +26,9 @@
     phone: string;
   }
 
-  // 初始化作者列表
-  let authors = $state<Author[]>([
-    {
-      type: '',
-      account: '',
-      name: '',
-      insCountry: '',
-      insCity: '',
-      insAddress: '',
-      email: '',
-      fax: '',
-      phone: ''
-    }
-  ]);
-
   // 添加新作者
   function addAuthor() {
-    authors = [...authors, {
+    const newAuthors = [...authors, {
       type: '',
       account: '',
       name: '',
@@ -44,12 +39,37 @@
       fax: '',
       phone: ''
     }];
+    moduleData.update(store => ({
+      ...store,
+      authors: {
+        ...store.authors,
+        list: newAuthors
+      }
+    }));
   }
 
   // 删除作者
   function removeAuthor(index: number) {
-    authors = authors.filter((_, i) => i !== index);
+    const newAuthors = authors.filter((_, i) => i !== index);
+    moduleData.update(store => ({
+      ...store,
+      authors: {
+        ...store.authors,
+        list: newAuthors
+      }
+    }));
   }
+
+  // 更新 store 中的数据
+  $effect(() => {
+    moduleData.update(store => ({
+      ...store,
+      authors: {
+        ...store.authors,
+        list: authors
+      }
+    }));
+  });
 </script>
 
 <div class="module-container">
