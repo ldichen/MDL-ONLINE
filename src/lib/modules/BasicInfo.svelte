@@ -8,12 +8,35 @@
     let selectedStyle = $derived($moduleData.basicInfo.style);
     let treeData = $derived($moduleData.basicInfo.classification);
     
+    // 错误状态
+    let nameError = $state(false);
+    let styleError = $state(false);
+    
     const styles = [
       { value: 'SimpleCalculation', label: 'SimpleCalculation' },
       { value: 'TimeSeries', label: 'TimeSeries' },
       { value: 'StateSimulation', label: 'StateSimulation' }
     ];
   
+    // 验证函数
+    function validateForm(): boolean {
+      nameError = !name?.trim();
+      styleError = !selectedStyle?.trim();
+      
+      if (nameError || styleError) {
+        alert('请填写必填项');
+        return false;
+      }
+      return true;
+    }
+
+    // 处理下一步按钮点击
+    function handleNext() {
+      if (validateForm()) {
+        next("next");
+      }
+    }
+    
     // 更新 store 中的数据
     $effect(() => {
       moduleData.update(store => ({
@@ -114,23 +137,36 @@
     
     <div class="form-content">
       <div class="form-group">
-        <label for="name">Name</label>
+        <label for="name">Name <span class="required">*</span></label>
         <input 
           type="text" 
           id="name" 
           bind:value={name} 
           placeholder="请输入名称"
-          required
+          class:error={nameError}
+          onfocus={() => nameError = false}
         />
+        {#if nameError}
+          <div class="error-message">请输入名称</div>
+        {/if}
       </div>
   
       <div class="form-group">
-        <label for="style">Style</label>
-        <select id="style" bind:value={selectedStyle}>
+        <label for="style">Style <span class="required">*</span></label>
+        <select 
+          id="style" 
+          bind:value={selectedStyle}
+          class:error={styleError}
+          onfocus={() => styleError = false}
+        >
+          <option value="">请选择类型</option>
           {#each styles as style}
             <option value={style.value}>{style.label}</option>
           {/each}
         </select>
+        {#if styleError}
+          <div class="error-message">请选择类型</div>
+        {/if}
       </div>
   
       <div class="form-group">
@@ -217,7 +253,7 @@
     </div>
   
     <div class="action-buttons">
-      <button class="btn primary" onclick={() => next("next")}>确认，下一步</button>
+      <button class="btn primary" onclick={handleNext}>确认，下一步</button>
     </div>
   </div>
   
@@ -380,5 +416,30 @@
         margin-left: 0.75rem;
         padding-left: 0.75rem;
       }
+    }
+  
+    .required {
+      color: #ff4444;
+      margin-left: 4px;
+    }
+  
+    .error {
+      border-color: #ff4444 !important;
+    }
+  
+    .error:focus {
+      box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.1) !important;
+    }
+  
+    .error-message {
+      color: #ff4444;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      margin-left: 0.5rem;
+    }
+  
+    input[type="text"].error,
+    select.error {
+      background-color: rgba(255, 68, 68, 0.05);
     }
   </style>

@@ -3,12 +3,32 @@
   import ThemeIcon from '$lib/components/ThemeIcon.svelte';
   import { onMount } from 'svelte';
   import '../app.css';
+  import { EXTERNAL_LINKS } from '$lib/constants/config';
   
   // 确保客户端渲染时应用主题
   onMount(() => {
     if ($theme) {
       document.documentElement.setAttribute('data-theme', $theme);
     }
+  });
+
+  // 添加一个变量来追踪当前是否在欢迎模块
+  let isWelcomeModule = true;
+
+  // 监听自定义事件来更新状态
+  onMount(() => {
+    const handleModuleChange = (event: Event) => {
+      const moduleEvent = event as CustomEvent;
+      console.log('Module Change Event:', moduleEvent.detail); // 添加调试日志
+      isWelcomeModule = moduleEvent.detail.currentModule === 0;
+      console.log('Is Welcome Module:', isWelcomeModule); // 添加调试日志
+    };
+
+    window.addEventListener('moduleChange', handleModuleChange as EventListener);
+
+    return () => {
+      window.removeEventListener('moduleChange', handleModuleChange as EventListener);
+    };
   });
 </script>
 
@@ -21,10 +41,10 @@
       
       <nav>
         <ul>
-          <li><a href="/">首页</a></li>
+          <!-- <li><a href="/">首页</a></li>
           <li><a href="/features">功能</a></li>
           <li><a href="/about">关于</a></li>
-          <li><a href="/contact">联系我们</a></li>
+          <li><a href="/contact">联系我们</a></li> -->
         </ul>
         <button class="theme-toggle" on:click={toggleTheme} aria-label="切换主题">
           <ThemeIcon theme={$theme} />
@@ -37,36 +57,42 @@
     <slot />
   </div>
 
-  <footer>
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3>MDL-ONLINE</h3>
-          <p>一个专业的 Svelte 应用开发框架</p>
+  {#if isWelcomeModule}
+    <footer class="floating-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>OpenGMS系统</h3>
+            <ul>
+              <li><a href={EXTERNAL_LINKS.OPENGMS.HOME}>OpenGMS</a></li>
+              <li><a href={EXTERNAL_LINKS.OPENGMS.OpenGMP}>开放式建模平台</a></li>
+              <li><a href={EXTERNAL_LINKS.OPENGMS.PExploration}>地理问题求解平台</a></li>
+              <li><a href={EXTERNAL_LINKS.OPENGMS.YangtzeVGLab}>长三角虚拟地理实验平台</a></li>
+            </ul>
+
+          </div>
+          
+          <div class="footer-section">
+            <h3>在线工具</h3>
+            <ul>
+              <li><a href="/">数据服务容器</a></li>
+              <li><a href="/">模型服务容器</a></li>
+              <li><a href={EXTERNAL_LINKS.OPENGMS.MDL_ONLINE}>MDL-ONLINE</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h3>联系方式</h3>
+            <p>邮箱: opengms@njnu.edu.cn</p>
+          </div>
         </div>
         
-        <div class="footer-section">
-          <h3>链接</h3>
-          <ul>
-            <li><a href="/">首页</a></li>
-            <li><a href="/features">功能</a></li>
-            <li><a href="/about">关于</a></li>
-            <li><a href="/contact">联系我们</a></li>
-          </ul>
-        </div>
-        
-        <div class="footer-section">
-          <h3>联系方式</h3>
-          <p>邮箱: info@mdl-online.com</p>
-          <p>电话: +86 123 4567 8900</p>
+        <div class="copyright">
+          Copyright &copy; 2011-2023 OpenGMS. All Rights Reserved.
         </div>
       </div>
-      
-      <div class="copyright">
-        Copyright &copy; 2011-2023 OpenGMS. All Rights Reserved.
-      </div>
-    </div>
-  </footer>
+    </footer>
+  {/if}
 </div>
 
 <style>
@@ -174,19 +200,27 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
-    margin-bottom: 2rem;
+
   }
   
+  .footer-section {
+    text-align: center;
+  }
+
   .footer-section h3 {
     margin-top: 0;
     color: var(--primary-color);
     margin-bottom: 1rem;
+    text-align: center;
   }
   
   .footer-section ul {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
   .footer-section li {
@@ -231,6 +265,82 @@
       position: absolute;
       top: 1rem;
       right: 1rem;
+    }
+  }
+
+  .floating-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: var(--footer-bg);
+    padding: 1rem 0 1rem;
+    margin-top: 0;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .floating-footer .container {
+    max-width: 1800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .floating-footer .footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+
+  .floating-footer .footer-section {
+    text-align: center;
+  }
+
+  .floating-footer .footer-section h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .floating-footer .footer-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .floating-footer .footer-section li {
+    margin-bottom: 0.5rem;
+  }
+
+  .floating-footer .footer-section a {
+    text-decoration: none;
+    color: var(--text-color);
+    transition: color 0.2s;
+  }
+
+  .floating-footer .footer-section a:hover {
+    color: var(--primary-color);
+  }
+
+  .floating-footer .copyright {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 768px) {
+    .floating-footer {
+      padding: 1.5rem 0 1rem;
+    }
+
+    .floating-footer .footer-content {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
   }
 </style> 

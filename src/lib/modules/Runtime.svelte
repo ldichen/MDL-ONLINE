@@ -55,6 +55,12 @@
     { type: '', name: '' }
   ]);
 
+  // 验证函数
+  function validateForm(): boolean {
+    // 所有字段都是可选的，直接返回 true
+    return true;
+  }
+
   // 文件上传处理
   async function handleFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -205,6 +211,41 @@
 
   // 处理完成按钮点击
   async function handleComplete() {
+    // 验证 BasicInfo
+    const basicInfo = $moduleData.basicInfo;
+    if (!basicInfo.name?.trim() || !basicInfo.style?.trim()) {
+      alert('请在 Basic Info 中填写必填项（Name 和 Style）');
+      return;
+    }
+
+    // 验证 Behavior
+    const states = $moduleData.behavior.states;
+    if (states.length === 0) {
+      alert('请在 Behavior 中至少创建一个状态');
+      return;
+    }
+
+    // 检查每个状态是否都有名称和至少一个事件
+    for (const state of states) {
+      if (!state.name?.trim()) {
+        alert('Behavior 中的状态名称不能为空');
+        return;
+      }
+
+      if (!state.events || state.events.length === 0) {
+        alert('Behavior 中的每个状态至少需要一个事件');
+        return;
+      }
+
+      // 检查每个事件是否都有名称
+      for (const event of state.events) {
+        if (!event.name?.trim()) {
+          alert('Behavior 中的事件名称不能为空');
+          return;
+        }
+      }
+    }
+
     try {
       // 生成XML
       const xml = await generateXML($moduleData);
@@ -233,17 +274,29 @@
       <div class="basic-info">
         <div class="input-group">
           <label for="name">Name</label>
-          <input type="text" id="name" bind:value={runtimeInfo.name} />
+          <input 
+            type="text" 
+            id="name" 
+            bind:value={runtimeInfo.name}
+          />
         </div>
 
         <div class="input-group">
           <label for="version">Version</label>
-          <input type="text" id="version" bind:value={runtimeInfo.version} />
+          <input 
+            type="text" 
+            id="version" 
+            bind:value={runtimeInfo.version}
+          />
         </div>
 
         <div class="input-group">
           <label for="baseDir">BaseDir</label>
-          <input type="text" id="baseDir" bind:value={runtimeInfo.baseDir} />
+          <input 
+            type="text" 
+            id="baseDir" 
+            bind:value={runtimeInfo.baseDir}
+          />
         </div>
 
         <div class="input-group">
@@ -298,14 +351,26 @@
               {#each hardwareConfigures as config, index}
                 <tr>
                   <td>
-                    <select bind:value={config.configures}>
+                    <select 
+                      bind:value={config.configures}
+                    >
                       {#each hardwareOptions as option}
                         <option value={option}>{option}</option>
                       {/each}
                     </select>
                   </td>
-                  <td><input type="text" bind:value={config.min} /></td>
-                  <td><input type="text" bind:value={config.max} /></td>
+                  <td>
+                    <input 
+                      type="text" 
+                      bind:value={config.min}
+                    />
+                  </td>
+                  <td>
+                    <input 
+                      type="text" 
+                      bind:value={config.max}
+                    />
+                  </td>
                   <td class="action-column">
                     <button class="btn-remove" onclick={() => removeRow('hardware', index)}>×</button>
                   </td>
@@ -335,14 +400,26 @@
               {#each softwareConfigures as config, index}
                 <tr>
                   <td>
-                    <select bind:value={config.environment}>
+                    <select 
+                      bind:value={config.environment}
+                    >
                       {#each environmentOptions as option}
                         <option value={option}>{option}</option>
                       {/each}
                     </select>
                   </td>
-                  <td><input type="text" bind:value={config.platform} /></td>
-                  <td><input type="text" bind:value={config.value} /></td>
+                  <td>
+                    <input 
+                      type="text" 
+                      bind:value={config.platform}
+                    />
+                  </td>
+                  <td>
+                    <input 
+                      type="text" 
+                      bind:value={config.value}
+                    />
+                  </td>
                   <td class="action-column">
                     <button class="btn-remove" onclick={() => removeRow('software', index)}>×</button>
                   </td>
@@ -370,8 +447,18 @@
             <tbody>
               {#each assemblies as assembly, index}
                 <tr>
-                  <td><input type="text" bind:value={assembly.name} /></td>
-                  <td><input type="text" bind:value={assembly.path} /></td>
+                  <td>
+                    <input 
+                      type="text" 
+                      bind:value={assembly.name}
+                    />
+                  </td>
+                  <td>
+                    <input 
+                      type="text" 
+                      bind:value={assembly.path}
+                    />
+                  </td>
                   <td class="action-column">
                     <button class="btn-remove" onclick={() => removeRow('assemblies', index)}>×</button>
                   </td>
@@ -399,8 +486,18 @@
             <tbody>
               {#each supportiveResources as resource, index}
                 <tr>
-                  <td><input type="text" bind:value={resource.type} /></td>
-                  <td><input type="text" bind:value={resource.name} /></td>
+                  <td>
+                    <input 
+                      type="text" 
+                      bind:value={resource.type}
+                    />
+                  </td>
+                  <td>
+                    <input 
+                      type="text" 
+                      bind:value={resource.name}
+                    />
+                  </td>
                   <td class="action-column">
                     <button class="btn-remove" onclick={() => removeRow('resources', index)}>×</button>
                   </td>
@@ -451,8 +548,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
   }
-
-
 
   .basic-info {
     display: grid;
@@ -506,7 +601,6 @@
     color: var(--text-color);
     opacity: 0.7;
     font-size: 0.8rem;
-
   }
 
   h4 {
@@ -699,4 +793,5 @@
     background-color: var(--input-bg);
     cursor: pointer;
   }
+
 </style> 

@@ -5,6 +5,10 @@
   // 当前激活的主标签页
   let activeTab = $state('States');
 
+  // 错误状态
+  let stateError = $state(false);
+  let eventError = $state(false);
+
   interface State {
     id: string;
     name: string;
@@ -156,6 +160,60 @@
       }));
     }
   });
+
+  // 验证函数
+  function validateForm(): boolean {
+    // 检查是否至少有一个状态
+    if (states.length === 0) {
+      stateError = true;
+      activeTab = 'States';
+      alert('请至少创建一个状态');
+      return false;
+    }
+
+    // 检查每个状态是否都有名称和至少一个事件
+    for (let i = 0; i < states.length; i++) {
+      const state = states[i];
+      if (!state.name?.trim()) {
+        stateError = true;
+        activeTab = 'States';
+        currentStateIndex = i;
+        alert('状态名称不能为空');
+        return false;
+      }
+
+      if (!state.events || state.events.length === 0) {
+        eventError = true;
+        activeTab = 'States';
+        currentStateIndex = i;
+        alert('每个状态至少需要一个事件');
+        return false;
+      }
+
+      // 检查每个事件是否都有名称
+      for (let j = 0; j < state.events.length; j++) {
+        if (!state.events[j].name?.trim()) {
+          eventError = true;
+          activeTab = 'States';
+          currentStateIndex = i;
+          currentEventIndex = j;
+          alert('事件名称不能为空');
+          return false;
+        }
+      }
+    }
+
+    stateError = false;
+    eventError = false;
+    return true;
+  }
+
+  // 处理下一步按钮点击
+  function handleNext() {
+    if (validateForm()) {
+      next("next");
+    }
+  }
 </script>
 
 <div class="module-container">
@@ -179,6 +237,16 @@
 
     {#if activeTab === 'States'}
       <div class="form-group">
+        {#if stateError || eventError}
+          <div class="error-banner">
+            {#if stateError}
+              <div class="error-message">请至少创建一个状态</div>
+            {/if}
+            {#if eventError}
+              <div class="error-message">每个状态至少需要一个事件</div>
+            {/if}
+          </div>
+        {/if}
         <div class="states-container">
           <div class="states-tags">
             {#each states as state, index}
@@ -539,7 +607,7 @@
 
   <div class="action-buttons">
     <button class="btn outline" onclick={() => prev("prev")}>返回上一步</button>
-    <button class="btn primary" onclick={() => next("next")}>确认，下一步</button>
+    <button class="btn primary" onclick={handleNext}>确认，下一步</button>
   </div>
 </div>
 
@@ -1226,5 +1294,19 @@
     justify-content: flex-end;
     gap: 1rem;
     margin-top: 1.5rem;
+  }
+
+  .error-banner {
+    background-color: rgba(255, 68, 68, 0.05);
+    border: 1px solid #ff4444;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .error-message {
+    color: #ff4444;
+    font-size: 0.875rem;
+    margin: 0.25rem 0;
   }
 </style> 

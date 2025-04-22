@@ -8,10 +8,10 @@ export const EXTERNAL_LINKS = {
   // OpenGMS 相关链接
   OPENGMS: {
     HOME: "https://geomodeling.njnu.edu.cn/", // OpenGMS 主页
-    PORTAL: "https://portal.geomodeling.njnu.edu.cn/", // OpenGMS Portal
-    STUDIO: "https://studio.geomodeling.njnu.edu.cn/", // OpenGMS Studio
-    LAB: "https://lab.geomodeling.njnu.edu.cn/", // OpenGMS Lab
-    COMMUNITY: "https://community.geomodeling.njnu.edu.cn/", // OpenGMS Community
+    OpenGMP: "https://geomodeling.njnu.edu.cn/OpenGMP/",
+    PExploration: "https://geomodeling.njnu.edu.cn/PExploration/home", // OpenGMS Studio
+    YangtzeVGLab: "https://geomodeling.njnu.edu.cn/YangtzeVGLab/", // OpenGMS Lab
     MDL: "https://geomodeling.njnu.edu.cn/Development/", // MDL 文档
+    MDL_ONLINE: "https://opengms.njnu.edu.cn/mdlOnline", // MDL-ONLINE
   },
 };

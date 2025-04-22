@@ -103,6 +103,25 @@
   $: outAnimation = direction > 0
     ? { y: -50, duration: 500 }
     : { y: 50, duration: 500 };
+
+  // 监听模块变化
+  $: {
+    if (typeof window !== 'undefined' && currentModule !== undefined) {
+      console.log('Current Module:', currentModule);
+      window.dispatchEvent(new CustomEvent('moduleChange', {
+        detail: { currentModule }
+      }));
+    }
+  }
+
+  // 初始化时触发一次
+  onMount(() => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('moduleChange', {
+        detail: { currentModule }
+      }));
+    }
+  });
 </script>
 
 <svelte:head>
