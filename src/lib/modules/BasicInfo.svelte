@@ -5,7 +5,7 @@
   
     // 使用 store 中的数据
     let name = $derived($moduleData.basicInfo.name);
-    let selectedStyle = $derived($moduleData.basicInfo.type);
+    let selectedStyle = $derived($moduleData.basicInfo.style);
     let treeData = $derived($moduleData.basicInfo.classification);
     
     const styles = [
@@ -21,7 +21,7 @@
         basicInfo: {
           ...store.basicInfo,
           name,
-          type: selectedStyle
+          style: selectedStyle
         }
       }));
     });

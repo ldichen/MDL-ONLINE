@@ -5,7 +5,7 @@ interface ModuleData {
   basicInfo: {
     name: string;
     version: string;
-    type: string;
+    style: string;
     description: string;
     keywords: string[];
     classification: Array<{
@@ -132,7 +132,7 @@ const initialData: ModuleData = {
   basicInfo: {
     name: "",
     version: "",
-    type: "",
+    style: "",
     description: "",
     keywords: [],
     classification: [

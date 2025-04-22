@@ -1,6 +1,8 @@
 <script lang="ts">
   import '../styles/modules.css';
   import { moduleData } from '../stores/moduleData';
+  import { generateXML } from '../utils/xmlGenerator';
+  import { downloadFile } from '../utils/download';
   let { next, prev } = $props();
 
   // 硬件配置选项
@@ -200,6 +202,26 @@
       }
     }));
   });
+
+  // 处理完成按钮点击
+  async function handleComplete() {
+    try {
+      // 生成XML
+      const xml = await generateXML($moduleData);
+      
+      // 获取模块名称作为文件名
+      const fileName = $moduleData.basicInfo.name || 'model';
+      
+      // 下载文件
+      downloadFile(xml, `${fileName}.mdl`, 'application/xml');
+      
+      // 调用next
+      next("next");
+    } catch (error) {
+      console.error('Error generating XML:', error);
+      alert('Failed to generate XML file. Please try again.');
+    }
+  }
 </script>
 
 <div class="module-container">
@@ -396,7 +418,7 @@
 
   <div class="action-buttons">
     <button class="btn outline" onclick={() => prev("prev")}>返回上一步</button>
-    <button class="btn primary" onclick={() => next("next")}>完成</button>
+    <button class="btn primary" onclick={handleComplete}>完成</button>
   </div>
 </div>
 

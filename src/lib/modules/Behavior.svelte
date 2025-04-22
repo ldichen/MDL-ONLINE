@@ -292,12 +292,12 @@
               <div class="events-section">
                 <div class="events-container">
                   <div class="event-tabs">
-                    {#each states[currentStateIndex].events as _, eventIndex}
+                    {#each states[currentStateIndex].events as event, eventIndex}
                       <button 
                         class="event-tab {currentEventIndex === eventIndex ? 'active' : ''}"
                         onclick={() => currentEventIndex = eventIndex}
                       >
-                        Event {eventIndex + 1}
+                        {event.name}
                         <span 
                           class="remove-event"
                           onclick={(e) => {
