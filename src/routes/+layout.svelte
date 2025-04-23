@@ -152,22 +152,7 @@
     align-items: center;
   }
   
-  nav a {
-    text-decoration: none;
-    color: var(--text-color, #333);
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-  
-  nav a:hover {
-    color: var(--primary-color);
-  }
 
-  nav li:last-child {
-    height: 30px;
-    display: flex;
-    align-items: center;
-  }
 
   .theme-toggle {
     background: none;

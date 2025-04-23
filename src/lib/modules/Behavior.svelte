@@ -1,6 +1,7 @@
 <script lang="ts">
   import '../styles/modules.css';
   import { moduleData } from '../stores/moduleData';
+  import { v4 as uuidv4 } from 'uuid';
   let { next, prev } = $props();
   // 当前激活的主标签页
   let activeTab = $state('States');
@@ -66,7 +67,7 @@
   function addState() {
     const newStateNumber = states.length + 1;
     const newStates = [...states, {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       name: `state${newStateNumber}`,
       type: stateTypes[0],
       description: '',

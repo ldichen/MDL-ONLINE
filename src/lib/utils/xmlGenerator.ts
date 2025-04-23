@@ -5,6 +5,8 @@
  * @LastEditTime: 2025-04-22 16:14:37
  */
 
+import { v4 as uuidv4 } from "uuid";
+
 // 定义类型
 interface Dataset {
   name: string;
@@ -76,7 +78,7 @@ interface RuntimeInfo {
  * @returns UUID字符串
  */
 function generateUuid(): string {
-  return crypto.randomUUID();
+  return uuidv4();
 }
 
 /**

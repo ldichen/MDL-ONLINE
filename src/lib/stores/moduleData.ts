@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { v4 as uuidv4 } from "uuid";
 
 // 定义初始数据结构
 interface ModuleData {
@@ -466,7 +467,7 @@ const initialData: ModuleData = {
   behavior: {
     states: [
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         name: "state1",
         type: "basic",
         description: "",
